@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI Biologi Fase D - Malfungsi Organ</title>
+    <style>
+        :root {
+            --primary-green: #14532d;
+            --secondary-green: #16a34a;
+            --light-green: #dcfce7;
+            --accent-yellow: #facc15;
+            --text-dark: #1f2937;
+            --white: #ffffff;
+            --danger: #ef4444;
+            --warning: #f97316;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(var(--secondary-green) 0.5px, transparent 0.5px), radial-gradient(var(--secondary-green) 0.5px, var(--light-green) 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--white);
+            min-height: 90vh;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--accent-yellow);
+        }
+
+        header h2 { font-size: 1.5rem; margin-bottom: 5px;}
+        header p { font-size: 0.9rem; opacity: 0.9;}
+
+        .section {
+            padding: 30px;
+            display: none;
+            flex-grow: 1;
+            animation: fadeIn 0.5s ease;
+            overflow-y: auto;
+        }
+
+        .section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #cover {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(20, 83, 45, 0.9), rgba(22, 163, 74, 0.8));
+            color: white;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .cover-title {
+            font-size: 2.2rem;
+            color: var(--accent-yellow);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .cover-subtitle { font-size: 1.1rem; margin-bottom: 20px; font-weight: 300; }
+
+        .profile-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--accent-yellow);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Form Identitas Siswa */
+        .identity-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: left;
+            margin-top: 15px;
+            border-top: 1px dashed rgba(255,255,255,0.3);
+            padding-top: 15px;
+        }
+
+        .identity-form label { font-size: 0.9rem; font-weight: bold; color: var(--accent-yellow); }
+        .identity-form input {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            width: 100%;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h3.section-title {
+            color: var(--primary-green);
+            border-bottom: 3px solid var(--secondary-green);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        p.content-text { line-height: 1.6; margin-bottom: 15px; font-size: 1.1rem; text-align: justify; }
+
+        .context-box {
+            background-color: #fef08a;
+            border-left: 5px solid var(--warning);
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .interactive-container {
+            background: #f3f4f6;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px dashed var(--secondary-green);
+        }
+
+        .slider-group label { font-weight: bold; display: block; margin-bottom: 10px; color: var(--primary-green); }
+        input[type=range] { width: 100%; cursor: pointer; }
+
+        .visual-feedback {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .organ-icon { font-size: 4rem; transition: filter 0.3s; }
+        .feedback-text { font-weight: bold; flex-grow: 1; }
+
+        .btn {
+            background-color: var(--accent-yellow);
+            color: var(--primary-green);
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            width: 100%;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-green { background-color: var(--secondary-green); color: white; }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            gap: 15px;
+        }
+
+        .quiz-question { margin-bottom: 20px; font-size: 1.2rem; font-weight: bold;}
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn {
+            background-color: var(--white);
+            border: 2px solid var(--secondary-green);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .option-btn:hover { background-color: var(--light-green); }
+        .option-btn.correct { background-color: var(--secondary-green); color: white; border-color: var(--primary-green); }
+        .option-btn.wrong { background-color: var(--danger); color: white; border-color: darkred; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8;}
+
+        .quiz-feedback { margin-top: 15px; padding: 15px; border-radius: 10px; display: none; font-weight: 500; }
+        .quiz-feedback.show { display: block; animation: fadeIn 0.3s;}
+        .feedback-correct { background-color: #d1fae5; color: #065f46; border-left: 5px solid #10b981; }
+        .feedback-wrong { background-color: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444; }
+
+        #score-board { text-align: center; display: none; }
+        #score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(var(--secondary-green) 0%, var(--light-green) 0%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-green);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    
+    <header id="main-header" style="display: none;">
+        <h2>🌿 Biologi Fase D - Kelas VIII</h2>
+        <p>Oleh: Puji Lestari, S.Pd | MTs Gorontalo</p>
+    </header>
+
+    <!-- SECTION 1: COVER & IDENTITAS -->
+    <section id="sec-cover" class="section active" style="padding: 0; background: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" opacity=\"0.1\"><path d=\"M50 15c-15-20-40-5-40 15 0 20 40 40 40 40s40-20 40-40c0-20-25-35-40-15z\" fill=\"white\"/></svg>') repeat; background-color: var(--primary-green);">
+        <div id="cover">
+            <h1 class="cover-title">FUNGSI & MALFUNGSI ORGAN</h1>
+            <p class="cover-subtitle">Mengenal Tubuh Kita di Lingkungan Gorontalo</p>
+            
+            <div class="profile-box">
+                <h3>Data Siswa</h3>
+                <div class="identity-form">
+                    <div>
+                        <label for="siswaNama">Nama Lengkap:</label>
+                        <input type="text" id="siswaNama" placeholder="Masukkan nama..." required>
+                    </div>
+                    <div>
+                        <label for="siswaKelas">Kelas:</label>
+                        <input type="text" id="siswaKelas" placeholder="Misal: 8A" required>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn" id="btn-mulai" onclick="mulaiBelajar()">Mulai Belajar 🚀</button>
+            <p id="error-identitas" style="color: #fca5a5; margin-top: 10px; font-size: 0.9rem; display: none;">Nama dan Kelas wajib diisi!</p>
+        </div>
+    </section>
+
+    <!-- SECTION 2: MATERI -->
+    <section id="sec-intro" class="section">
+        <h3 class="section-title">Tubuh Kita dan Lingkungan Gorontalo</h3>
+        <div class="context-box">
+            📍 <strong>Konteks Lokal:</strong> Tinggal di dekat Pabrik Gula dan perkebunan tebu membuat kita terpapar pola lingkungan tertentu. Apa dampaknya pada organ kita?
+        </div>
+        <p class="content-text">
+            Malfungsi adalah kegagalan organ melakukan fungsi utamanya. Mari pelajari 2 organ penting yang rentan terpengaruh lingkungan kita:
+            <br><br>
+            <strong>1. Paru-paru (Sistem Pernapasan) 🫁</strong><br>
+            Ancaman: Asap pembakaran lahan tebu dan debu pabrik dapat menumpuk di alveolus, menyebabkan ISPA (Infeksi Saluran Pernapasan Akut).
+            <br><br>
+            <strong>2. Pankreas (Sistem Endokrin) 🩸</strong><br>
+            Ancaman: Konsumsi produk gula berlebih memaksa pankreas bekerja terlalu keras. Jika rusak, insulin terhenti dan memicu <strong>Diabetes Melitus</strong>.
+        </p>
+        <div class="nav-buttons" style="justify-content: flex-end;">
+            <button class="btn btn-green" onclick="goToSection('sec-explore')">Lanjut Simulasi 🔬</button>
+        </div>
+    </section>
+
+    <!-- SECTION 3: SIMULASI -->
+    <section id="sec-explore" class="section">
+        <h3 class="section-title">Laboratorium Mini: Simulasi Malfungsi</h3>
+        
+        <div class="interactive-container">
+            <div class="slider-group">
+                <label>Paparan Debu Tebu (Jam/Hari): <span id="valLungs">1</span> Jam</label>
+                <input type="range" id="sliderLungs" min="0" max="12" value="1" oninput="updateLungs()">
+            </div>
+            <div class="visual-feedback" id="boxLungs" style="background-color: #d1fae5;">
+                <div class="organ-icon" id="iconLungs">🫁</div>
+                <div class="feedback-text" id="feedLungs">Paru-paru Normal: Alveolus bersih.</div>
+            </div>
+        </div>
+
+        <div class="interactive-container">
+            <div class="slider-group">
+                <label>Konsumsi Gula Harian (Gram): <span id="valSugar">25</span> Gram</label>
+                <input type="range" id="sliderSugar" min="0" max="150" value="25" oninput="updateSugar()">
+            </div>
+            <div class="visual-feedback" id="boxSugar" style="background-color: #d1fae5;">
+                <div class="organ-icon" id="iconSugar">🩸</div>
+                <div class="feedback-text" id="feedSugar">Pankreas Stabil: Produksi insulin cukup.</div>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn" onclick="goToSection('sec-intro')" style="background-color: #e5e7eb; color: #374151;">Kembali</button>
+            <button class="btn btn-green" onclick="goToSection('sec-quiz')">Mulai Kuis Evaluasi 📝</button>
+        </div>
+    </section>
+
+    <!-- SECTION 4: KUIS -->
+    <section id="sec-quiz" class="section">
+        <h3 class="section-title">Kuis Formatif</h3>
+        
+        <div id="quiz-container">
+            <div class="quiz-question" id="q-text">Mengambil soal dari server...</div>
+            <div class="quiz-options" id="q-options"></div>
+            <div class="quiz-feedback" id="q-feedback"></div>
+            
+            <div style="text-align: right; margin-top: 20px;">
+                <button id="next-q-btn" class="btn btn-green" style="display: none;" onclick="nextQuestion()">Soal Selanjutnya ➡️</button>
+            </div>
+        </div>
+
+        <div id="score-board">
+            <h3 id="status-title">Menyimpan Data ke Database...</h3>
+            <div id="score-circle">0</div>
+            <p id="score-message" style="font-size: 1.1rem; margin-bottom: 20px; font-weight: bold;"></p>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // ==========================================
+    // KONFIGURASI DATABASE
+    // PASTE URL WEB APP APPS SCRIPT ANDA DI SINI
+    // ==========================================
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxAbnr-HvLs-go46JAD5YsCgzNpNNc8VsmXdjGxgZi3WiZnGxX-3SAdAPXVsYz9V6mw/exec"; 
+    
+    // Data Siswa
+    let userData = {
+        nama: "",
+        kelas: "",
+        skor: 0,
+        benar: 0,
+        salah: 0,
+        jawabanSiswa: [] // Merekam jawaban text yang dipilih siswa
+    };
+
+    let quizData = []; // Akan diisi dari Apps Script
+    let currentQuestion = 0;
+
+    // --- NAVIGASI & VALIDASI IDENTITAS ---
+    function mulaiBelajar() {
+        const namaInput = document.getElementById('siswaNama').value.trim();
+        const kelasInput = document.getElementById('siswaKelas').value.trim();
+        
+        if(namaInput === "" || kelasInput === "") {
+            document.getElementById('error-identitas').style.display = "block";
+            return;
+        }
+
+        userData.nama = namaInput;
+        userData.kelas = kelasInput;
+        document.getElementById('error-identitas').style.display = "none";
+        
+        // Ambil Data Kuis di Background via GET
+        ambilDataKuis(); 
+        
+        goToSection('sec-intro');
+    }
+
+    function goToSection(sectionId) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+        
+        document.getElementById('main-header').style.display = (sectionId !== 'sec-cover') ? 'block' : 'none';
+
+        if(sectionId === 'sec-quiz') startQuiz();
+    }
+
+    // --- FETCH DATA SOAL DARI SPREADSHEET ---
+    async function ambilDataKuis() {
+        if(!GAS_URL || GAS_URL.includes("XXXXXXXXX")) return; // Abaikan jika URL belum di set
+        try {
+            const response = await fetch(GAS_URL);
+            const data = await response.json();
+            if(data && data.length > 0) {
+                quizData = data;
+            }
+        } catch (error) {
+            console.error("Gagal mengambil soal online. Menggunakan soal cadangan lokal.");
+        }
+    }
+
+    // --- LOGIKA SIMULASI ---
+    function updateLungs() {
+        let val = document.getElementById('sliderLungs').value;
+        document.getElementById('valLungs').innerText = val;
+        let box = document.getElementById('boxLungs');
+        let icon = document.getElementById('iconLungs');
+        let feed = document.getElementById('feedLungs');
+
+        if (val <= 2) {
+            box.style.backgroundColor = "#d1fae5"; icon.style.filter = "grayscale(0%)";
+            feed.innerHTML = "<strong>Normal:</strong> Alveolus bersih, pertukaran oksigen lancar.";
+        } else if (val <= 6) {
+            box.style.backgroundColor = "#fef08a"; icon.style.filter = "grayscale(40%) sepia(20%)";
+            feed.innerHTML = "<strong>Peringatan:</strong> Partikel debu menumpuk. Saluran napas bekerja ekstra.";
+        } else {
+            box.style.backgroundColor = "#fee2e2"; icon.style.filter = "grayscale(80%) sepia(50%) brightness(70%)";
+            feed.innerHTML = "<strong>Bahaya!</strong> Debu menyumbat alveolus. Risiko tinggi ISPA/flek paru.";
+        }
+    }
+
+    function updateSugar() {
+        let val = document.getElementById('sliderSugar').value;
+        document.getElementById('valSugar').innerText = val;
+        let box = document.getElementById('boxSugar');
+        let icon = document.getElementById('iconSugar');
+        let feed = document.getElementById('feedSugar');
+
+        if (val <= 50) {
+            box.style.backgroundColor = "#d1fae5"; icon.style.transform = "scale(1)";
+            feed.innerHTML = "<strong>Normal:</strong> Insulin diproduksi cukup untuk energi.";
+        } else if (val <= 100) {
+            box.style.backgroundColor = "#fef08a"; icon.style.transform = "scale(1.1)";
+            feed.innerHTML = "<strong>Peringatan:</strong> Pankreas bekerja keras produksi ekstra insulin.";
+        } else {
+            box.style.backgroundColor = "#fee2e2"; icon.style.transform = "scale(0.9)";
+            feed.innerHTML = "<strong>Bahaya!</strong> Sel penghasil insulin rusak. Risiko Diabetes Melitus.";
+        }
+    }
+
+    // --- LOGIKA KUIS & PENGIRIMAN KE DATABASE ---
+    function startQuiz() {
+        // Fallback jika fetch gagal / gas belum diisi
+        if (quizData.length === 0) {
+            quizData = [
+                {
+                    question: "Masyarakat di sekitar pabrik gula sering kali mengonsumsi teh manis setiap hari. Jika dibiarkan, organ apakah yang paling berisiko malfungsi?",
+                    options: ["Jantung", "Pankreas", "Lambung", "Paru-paru"],
+                    answer: 1, feedback: "Pankreas berfungsi menghasilkan hormon insulin. Konsumsi gula berlebih memicu Diabetes."
+                }
+            ];
+        }
+
+        currentQuestion = 0;
+        userData.skor = 0;
+        userData.benar = 0;
+        userData.salah = 0;
+        userData.jawabanSiswa = [];
+        
+        document.getElementById('quiz-container').style.display = 'block';
+        document.getElementById('score-board').style.display = 'none';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const qData = quizData[currentQuestion];
+        document.getElementById('q-text').innerText = `${currentQuestion + 1}. ${qData.question}`;
+        
+        const optionsContainer = document.getElementById('q-options');
+        optionsContainer.innerHTML = ''; 
+        
+        document.getElementById('q-feedback').className = 'quiz-feedback';
+        document.getElementById('q-feedback').innerText = '';
+        document.getElementById('next-q-btn').style.display = 'none';
+
+        qData.options.forEach((opt, index) => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index, btn, opt);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, btnElement, selectedText) {
+        let allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(btn => btn.disabled = true);
+
+        const qData = quizData[currentQuestion];
+        const feedbackDiv = document.getElementById('q-feedback');
+
+        // Rekam jawaban siswa (Teks jawaban + status)
+        let rekamanJawaban = selectedText; 
+
+        if(selectedIndex === qData.answer) {
+            btnElement.classList.add('correct');
+            feedbackDiv.innerHTML = "<strong>✅ BENAR!</strong> " + qData.feedback;
+            feedbackDiv.className = 'quiz-feedback feedback-correct show';
+            userData.benar++;
+            rekamanJawaban += " (Benar)";
+        } else {
+            btnElement.classList.add('wrong');
+            allBtns[qData.answer].classList.add('correct');
+            feedbackDiv.innerHTML = "<strong>❌ KURANG TEPAT.</strong> " + qData.feedback;
+            feedbackDiv.className = 'quiz-feedback feedback-wrong show';
+            userData.salah++;
+            rekamanJawaban += " (Salah)";
+        }
+
+        userData.jawabanSiswa.push(rekamanJawaban);
+
+        // Ubah teks tombol jika soal terakhir
+        const nextBtn = document.getElementById('next-q-btn');
+        if (currentQuestion === quizData.length - 1) {
+            nextBtn.innerText = "Selesai & Simpan Nilai 💾";
+        } else {
+            nextBtn.innerText = "Soal Selanjutnya ➡️";
+        }
+        nextBtn.style.display = 'inline-block';
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+        if(currentQuestion < quizData.length) {
+            loadQuestion();
+        } else {
+            // Kalkulasi Skor Akhir (Skala 100)
+            userData.skor = Math.round((userData.benar / quizData.length) * 100);
+            submitKeDatabase();
+        }
+    }
+
+    async function submitKeDatabase() {
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('score-board').style.display = 'block';
+        
+        let title = document.getElementById('status-title');
+        let circle = document.getElementById('score-circle');
+        let msg = document.getElementById('score-message');
+        
+        title.innerHTML = '<span class="loader"></span> Menyimpan data...';
+        circle.innerText = "...";
+        circle.style.background = "#e5e7eb";
+        circle.style.color = "#9ca3af";
+        msg.innerText = "Harap tunggu sebentar, data sedang dikirim ke guru.";
+
+        // Kirim Data via POST ke Apps Script
+        if(GAS_URL && !GAS_URL.includes("XXXXXXXXX")) {
+            try {
+                await fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify(userData),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" } // Text plain menghindari error preflight CORS
+                });
+                title.innerText = "✅ Kuis Selesai!";
+            } catch(e) {
+                console.error(e);
+                title.innerText = "⚠️ Kuis Selesai (Data offline)";
+            }
+        } else {
+            title.innerText = "📝 Kuis Selesai (Simulasi Lokal)";
+        }
+
+        // Tampilkan Hasil Evaluasi ke Siswa
+        circle.innerText = userData.skor;
+        let color = userData.skor >= 80 ? 'var(--secondary-green)' : (userData.skor >= 60 ? 'var(--accent-yellow)' : 'var(--danger)');
+        circle.style.color = color;
+        circle.style.background = `conic-gradient(${color} ${userData.skor}%, var(--light-green) 0%)`;
+
+        if(userData.skor === 100) msg.innerText = `Luar Biasa ${userData.nama}! Kamu sangat memahami materi ini!`;
+        else if (userData.skor >= 60) msg.innerText = `Kerja bagus ${userData.nama}! Sedikit lagi sempurna.`;
+        else msg.innerText = `Tetap semangat ${userData.nama}! Mari ulangi membaca materi.`;
+    }
+</script>
+</body>
+</html>
